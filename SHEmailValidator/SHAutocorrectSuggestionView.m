@@ -25,17 +25,15 @@
 #import "SHAutocorrectSuggestionView.h"
 #import <QuartzCore/QuartzCore.h>
 
-static const NSInteger kCornerRadius = 6;
-static const NSInteger kArrowHeight = 12;
-static const NSInteger kArrowWidth = 8;
+static const NSInteger kCornerRadius = 10;
+static const NSInteger kArrowHeight = 10;
+static const NSInteger kArrowWidth = 10;
 static const NSInteger kMaxWidth = 240;
 static const NSInteger kDismissButtonWidth = 30;
 
 @interface SHAutocorrectSuggestionView ()
 
 @property (nonatomic, strong) UIView *target;
-@property (nonatomic, strong) UIFont *titleFont;
-@property (nonatomic, strong) UIFont *suggestionFont;
 @property (nonatomic, strong) NSString *title;
 @property (nonatomic) CGRect titleRect;
 @property (nonatomic) CGRect suggestionRect;
@@ -43,6 +41,9 @@ static const NSInteger kDismissButtonWidth = 30;
 @end
 
 @implementation SHAutocorrectSuggestionView
+{
+    BOOL _flipXPosition;
+}
 
 + (instancetype)showFromView:(UIView *)target inContainerView:(UIView *)container title:(NSString *)title autocorrectSuggestion:(NSString *)suggestion withSetupBlock:(SetupBlock)block
 {
@@ -69,7 +70,17 @@ static const NSInteger kDismissButtonWidth = 30;
 
 + (UIColor *)defaultSuggestionColor
 {
-    return [UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
+    return [UIColor colorWithRed:65.0/255 green:235.0/255 blue:175.0/255 alpha:1];
+}
+
++ (UIFont*)defaultTitleFont
+{
+    return [UIFont fontWithName:@"Value" size:18];
+}
+
++ (UIFont*)defaultSuggestionFont
+{
+    return [UIFont fontWithName:@"Value" size:18];
 }
 
 - (instancetype)initWithTarget:(UIView *)target title:(NSString *)title autocorrectSuggestion:(NSString *)suggestion withSetupBlock:(SetupBlock)block
@@ -77,16 +88,28 @@ static const NSInteger kDismissButtonWidth = 30;
     if ((self = [super init])) {
         self.title = title;
         self.suggestedText = suggestion;
-        self.titleFont = [UIFont boldSystemFontOfSize:13];
-        self.suggestionFont = [UIFont boldSystemFontOfSize:13];
+        
+        BOOL isLTR = [UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionLeftToRight;
+        _flipXPosition = isLTR ? NO : YES;
+        
+        if (!self.titleFont) {
+            self.titleFont = [SHAutocorrectSuggestionView defaultTitleFont];
+        }
+        
+        if (!self.suggestionFont) {
+            self.suggestionFont = [SHAutocorrectSuggestionView defaultSuggestionFont];
+        }
+
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
         NSMutableParagraphStyle * paragraphTitleStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
         paragraphTitleStyle.lineBreakMode = NSLineBreakByWordWrapping;
-        paragraphTitleStyle.alignment = NSTextAlignmentLeft;
+        paragraphTitleStyle.alignment = NSTextAlignmentNatural;
+        paragraphTitleStyle.lineHeightMultiple = 0.85;
         
         NSMutableParagraphStyle * paragraphSuggestedStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
         paragraphSuggestedStyle.lineBreakMode = NSLineBreakByCharWrapping;
-        paragraphSuggestedStyle.alignment = NSTextAlignmentLeft;
+        paragraphSuggestedStyle.alignment = NSTextAlignmentNatural;
+        paragraphSuggestedStyle.lineHeightMultiple = 0.85;
         
         CGRect titleSizeRect = [title boundingRectWithSize:CGSizeMake(kMaxWidth - kDismissButtonWidth, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:self.titleFont, NSParagraphStyleAttributeName:paragraphTitleStyle, NSForegroundColorAttributeName:[UIColor whiteColor]} context:nil];
         CGSize titleSize = titleSizeRect.size;
@@ -98,15 +121,19 @@ static const NSInteger kDismissButtonWidth = 30;
         CGSize suggestionSize = [suggestion sizeWithFont:self.suggestionFont constrainedToSize:CGSizeMake(kMaxWidth - kDismissButtonWidth, MAXFLOAT) lineBreakMode:NSLineBreakByCharWrapping];
 #endif
         CGFloat width = MAX(titleSize.width, suggestionSize.width) + kDismissButtonWidth + kCornerRadius * 2;
-        CGFloat height = titleSize.height + suggestionSize.height + kArrowHeight + kCornerRadius * 2;
+        CGFloat height = titleSize.height + suggestionSize.height + kArrowHeight + kCornerRadius * 2 - 5;
         CGFloat left = MAX(10, target.center.x - width / 2);
         CGFloat top = target.frame.origin.y - height + 4;
         
         self.frame = CGRectIntegral(CGRectMake(left, top, width, height));
         self.opaque = NO;
-        
-        self.titleRect = CGRectMake((width - kDismissButtonWidth - titleSize.width) / 2, kCornerRadius, titleSize.width, titleSize.height);
-        self.suggestionRect = CGRectMake(kCornerRadius, kCornerRadius + titleSize.height, suggestionSize.width, suggestionSize.height);
+        if (!_flipXPosition) {
+            self.titleRect = CGRectMake(kCornerRadius, kCornerRadius, titleSize.width, titleSize.height);
+            self.suggestionRect = CGRectMake(kCornerRadius, kCornerRadius + titleSize.height, suggestionSize.width, suggestionSize.height);
+        } else {
+            self.titleRect = CGRectMake(self.frame.size.width - titleSize.width - kCornerRadius, kCornerRadius, titleSize.width, titleSize.height);
+            self.suggestionRect = CGRectMake(kCornerRadius+kDismissButtonWidth, kCornerRadius + titleSize.height, suggestionSize.width, suggestionSize.height);
+        }
         
         if (block) {
             block(self);
@@ -158,30 +185,50 @@ static const NSInteger kDismissButtonWidth = 30;
     CGContextRestoreGState(context);
     CGPathRelease(path);
     
-    CGFloat separatorX = contentSize.width - kDismissButtonWidth;
-    CGContextSetStrokeColorWithColor(context, [UIColor grayColor].CGColor);
-    CGContextSetLineWidth(context, 1);
-    CGContextMoveToPoint(context, separatorX, 0);
-    CGContextAddLineToPoint(context, separatorX, contentSize.height);
-    CGContextStrokePath(context);
-    
-    CGFloat xSize = 12;
-    CGContextSetLineWidth(context, 4);
-    CGContextMoveToPoint(context, separatorX + (kDismissButtonWidth - xSize) / 2, (contentSize.height - xSize) / 2);
-    CGContextAddLineToPoint(context, separatorX + (kDismissButtonWidth + xSize) / 2, (contentSize.height + xSize) / 2);
-    CGContextStrokePath(context);
-    CGContextMoveToPoint(context, separatorX + (kDismissButtonWidth - xSize) / 2, (contentSize.height + xSize) / 2);
-    CGContextAddLineToPoint(context, separatorX + (kDismissButtonWidth + xSize) / 2, (contentSize.height - xSize) / 2);
-    CGContextStrokePath(context);
+    if (!_flipXPosition) {
+        CGFloat separatorX = contentSize.width - kDismissButtonWidth;
+        CGContextSetStrokeColorWithColor(context, [UIColor whiteColor].CGColor);
+        CGContextSetLineWidth(context, 1);
+        CGContextMoveToPoint(context, separatorX, 0);
+        CGContextAddLineToPoint(context, separatorX, contentSize.height);
+        CGContextStrokePath(context);
+        
+        CGFloat xSize = 10;
+        CGContextSetLineWidth(context, 1);
+        CGContextMoveToPoint(context, separatorX + (kDismissButtonWidth - xSize) / 2, (contentSize.height - xSize) / 2);
+        CGContextAddLineToPoint(context, separatorX + (kDismissButtonWidth + xSize) / 2, (contentSize.height + xSize) / 2);
+        CGContextStrokePath(context);
+        CGContextMoveToPoint(context, separatorX + (kDismissButtonWidth - xSize) / 2, (contentSize.height + xSize) / 2);
+        CGContextAddLineToPoint(context, separatorX + (kDismissButtonWidth + xSize) / 2, (contentSize.height - xSize) / 2);
+        CGContextStrokePath(context);
+    } else {
+        CGFloat separatorX = kDismissButtonWidth;
+        CGContextSetStrokeColorWithColor(context, [UIColor whiteColor].CGColor);
+        CGContextSetLineWidth(context, 1);
+        CGContextMoveToPoint(context, separatorX, 0);
+        CGContextAddLineToPoint(context, separatorX, contentSize.height);
+        CGContextStrokePath(context);
+        
+        CGFloat xSize = 10;
+        CGContextSetLineWidth(context, 1);
+        CGContextMoveToPoint(context, (kDismissButtonWidth - xSize) / 2, (contentSize.height - xSize) / 2);
+        CGContextAddLineToPoint(context, (kDismissButtonWidth + xSize) / 2, (contentSize.height + xSize) / 2);
+        CGContextStrokePath(context);
+        CGContextMoveToPoint(context, (kDismissButtonWidth - xSize) / 2, (contentSize.height + xSize) / 2);
+        CGContextAddLineToPoint(context, (kDismissButtonWidth + xSize) / 2, (contentSize.height - xSize) / 2);
+        CGContextStrokePath(context);
+    }
     
     [self.titleColor set];
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
     NSMutableParagraphStyle * paragraphTitleStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
     paragraphTitleStyle.lineBreakMode = NSLineBreakByWordWrapping;
-    paragraphTitleStyle.alignment = NSTextAlignmentCenter;
+    paragraphTitleStyle.alignment = NSTextAlignmentNatural;
+    paragraphTitleStyle.lineHeightMultiple = 0.85;
     NSMutableParagraphStyle * paragraphSuggestedStyle = [[NSMutableParagraphStyle defaultParagraphStyle] mutableCopy];
     paragraphSuggestedStyle.lineBreakMode = NSLineBreakByCharWrapping;
-    paragraphSuggestedStyle.alignment = NSTextAlignmentLeft;
+    paragraphSuggestedStyle.alignment = NSTextAlignmentNatural;
+    paragraphSuggestedStyle.lineHeightMultiple = 0.85;
     [self.title drawInRect:self.titleRect withAttributes:@{NSFontAttributeName:self.titleFont, NSParagraphStyleAttributeName:paragraphTitleStyle, NSForegroundColorAttributeName:[UIColor whiteColor]}];
     [self.suggestionColor set];
     [self.suggestedText drawInRect:self.suggestionRect withAttributes:@{NSFontAttributeName:self.suggestionFont, NSParagraphStyleAttributeName:paragraphSuggestedStyle, NSForegroundColorAttributeName:[SHAutocorrectSuggestionView defaultSuggestionColor]}];
@@ -200,12 +247,22 @@ static const NSInteger kDismissButtonWidth = 30;
         
         CGSize viewSize = self.bounds.size;
         if (touchPoint.x >= 0 && touchPoint.x < viewSize.width && touchPoint.y >= 0 && touchPoint.y < viewSize.height - kArrowHeight) {
-            if (touchPoint.x <= viewSize.width - kDismissButtonWidth && self.suggestedText) {
-                [self.delegate suggestionView:self wasDismissedWithAccepted:YES];
-                [self dismiss];
+            if (!_flipXPosition) {
+                if (touchPoint.x <= viewSize.width - kDismissButtonWidth && self.suggestedText) {
+                    [self.delegate suggestionView:self wasDismissedWithAccepted:YES];
+                    [self dismiss];
+                } else {
+                    [self.delegate suggestionView:self wasDismissedWithAccepted:NO];
+                    [self dismiss];
+                }
             } else {
-                [self.delegate suggestionView:self wasDismissedWithAccepted:NO];
-                [self dismiss];
+                if (touchPoint.x >= kDismissButtonWidth && self.suggestedText) {
+                    [self.delegate suggestionView:self wasDismissedWithAccepted:YES];
+                    [self dismiss];
+                } else {
+                    [self.delegate suggestionView:self wasDismissedWithAccepted:NO];
+                    [self dismiss];
+                }
             }
         }
     }

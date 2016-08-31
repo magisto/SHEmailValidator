@@ -162,6 +162,8 @@
     self.bubbleFillColor = [SHAutocorrectSuggestionView defaultFillColor];
     self.bubbleTitleColor = [SHAutocorrectSuggestionView defaultTitleColor];
     self.bubbleSuggestionColor = [SHAutocorrectSuggestionView defaultSuggestionColor];
+    self.titleFont = [SHAutocorrectSuggestionView defaultTitleFont];
+    self.suggestionFont = [SHAutocorrectSuggestionView defaultSuggestionFont];
 }
 
 - (void)setDelegate:(id<UITextFieldDelegate>)delegate
@@ -190,6 +192,8 @@
                 view.fillColor = self.bubbleFillColor;
                 view.titleColor = self.bubbleTitleColor;
                 view.suggestionColor = self.bubbleSuggestionColor;
+                view.titleFont = self.titleFont;
+                view.suggestionFont = self.suggestionFont;
             }];
             self.suggestionView.delegate = self;
         } else {
@@ -200,6 +204,8 @@
                     view.fillColor = self.bubbleFillColor;
                     view.titleColor = self.bubbleTitleColor;
                     view.suggestionColor = self.bubbleSuggestionColor;
+                    view.titleFont = self.titleFont;
+                    view.suggestionFont = self.suggestionFont;
                 }];
                 self.suggestionView.delegate = self;
             }
@@ -238,6 +244,18 @@
 {
     _bubbleSuggestionColor = bubbleSuggestionColor;
     self.suggestionView.suggestionColor = bubbleSuggestionColor;
+}
+
+- (void)setSuggestionFont:(UIFont *)suggestionFont
+{
+    _suggestionFont = suggestionFont;
+    self.suggestionView.suggestionFont = suggestionFont;
+}
+
+- (void)setTitleFont:(UIFont *)titleFont
+{
+    _titleFont = titleFont;
+    self.suggestionView.titleFont = titleFont;
 }
 
 #pragma mark

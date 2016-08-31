@@ -27,6 +27,7 @@
 		5FD6D38B180CB02F00C37742 /* SHEmailValidationTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FD6D38A180CB02F00C37742 /* SHEmailValidationTextField.m */; };
 		5FE2CF3F1816080E00CEA737 /* LevenshteinDistanceTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FE2CF3E1816080E00CEA737 /* LevenshteinDistanceTestModel.m */; };
 		5FE2CF421816083800CEA737 /* ValidatorTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FE2CF411816083800CEA737 /* ValidatorTestModel.m */; };
+		93246FA31D770A8F000CF7F8 /* DomainData.plist in Resources */ = {isa = PBXBuildFile; fileRef = 93246FA21D770A8F000CF7F8 /* DomainData.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		5FE2CF3E1816080E00CEA737 /* LevenshteinDistanceTestModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LevenshteinDistanceTestModel.m; sourceTree = "<group>"; };
 		5FE2CF401816083800CEA737 /* ValidatorTestModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValidatorTestModel.h; sourceTree = "<group>"; };
 		5FE2CF411816083800CEA737 /* ValidatorTestModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValidatorTestModel.m; sourceTree = "<group>"; };
+		93246FA21D770A8F000CF7F8 /* DomainData.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = DomainData.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 				5FD6D368180A401500C37742 /* SHEmailValidatorTests */,
 				5FD6D342180A401400C37742 /* Frameworks */,
 				5FD6D341180A401400C37742 /* Products */,
+				93246FA21D770A8F000CF7F8 /* DomainData.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -279,6 +282,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5FD6D35C180A401500C37742 /* Images.xcassets in Resources */,
+				93246FA31D770A8F000CF7F8 /* DomainData.plist in Resources */,
 				5FD6D34E180A401400C37742 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

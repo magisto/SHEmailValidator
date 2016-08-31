@@ -27,7 +27,10 @@
 @property (nonatomic, strong) UIColor *bubbleFillColor;
 @property (nonatomic, strong) UIColor *bubbleTitleColor;
 @property (nonatomic, strong) UIColor *bubbleSuggestionColor;
+@property (nonatomic, strong) UIFont  *titleFont;
+@property (nonatomic, strong) UIFont  *suggestionFont;
 @property (nonatomic, strong) NSError *validationError;
+
 
 - (void)dismissSuggestionView;
 - (void)validateInput;

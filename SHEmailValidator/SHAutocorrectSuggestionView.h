@@ -35,10 +35,14 @@ typedef void (^SetupBlock)(SHAutocorrectSuggestionView *view);
 @property (nonatomic, strong) UIColor *fillColor;
 @property (nonatomic, strong) UIColor *titleColor;
 @property (nonatomic, strong) UIColor *suggestionColor;
+@property (nonatomic, strong) UIFont  *titleFont;
+@property (nonatomic, strong) UIFont  *suggestionFont;
 
 + (UIColor *)defaultFillColor;
 + (UIColor *)defaultTitleColor;
 + (UIColor *)defaultSuggestionColor;
++ (UIFont*)defaultTitleFont;
++ (UIFont*)defaultSuggestionFont;
 
 + (instancetype)showFromView:(UIView *)target title:(NSString *)title autocorrectSuggestion:(NSString *)suggestion withSetupBlock:(SetupBlock)block;
 + (instancetype)showFromView:(UIView *)target inContainerView:(UIView *)container title:(NSString *)title autocorrectSuggestion:(NSString *)suggestion withSetupBlock:(SetupBlock)block;
